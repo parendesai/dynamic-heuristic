@@ -22,11 +22,11 @@ def intuition_heuristic(state):
     # print ret, state.board, state.to_move
     return -1*ret
 
-def monte_carlo(state, game, trials=100):
+def monte_carlo(state, game, trials=10):
     def update_scores(state):
         winner = game.utility(state, player)
         for pos in state.board:
-            initial_scores[pos[0]-1][pos[1]-1] += (winner)
+            initial_scores[pos[0]-1][pos[1]-1] += (winner) * (1 if state.board[pos] == player else -1)
     
     def get_max_score(state):
         max_score = []
@@ -44,14 +44,21 @@ def monte_carlo(state, game, trials=100):
     initial_scores = [[0 for _ in range(game.v)] for __ in range(game.h)]
 
     for trial in range(trials):
+        state = og_state
         moves = state.moves
         while moves:
             move = random.choice(moves)
+            # print move, state
+            # game.display(state)
             state = game.result(state, move)
-            moves = state.moves
-            if not moves:
+            
+            if game.terminal_test(state):
+                # print "here"
                 break
+            moves = state.moves
+        # print trial
         update_scores(state)
+        # print initial_scores
     return get_max_score(og_state)
 # ______________________________________________________________________________
 # Minimax Search
@@ -200,7 +207,9 @@ def alphabeta_heuristic_player(game, state):
     return alphabeta_search(state, game, eval_fn=intuition_heuristic)
 
 def monte_carlo_player(game, state):
-    return monte_carlo(state, game)
+    move =  monte_carlo(state, game, trials=100)
+    # print move
+    return move
 
 # ______________________________________________________________________________
 def play_game(game, *players):
