@@ -22,6 +22,37 @@ def intuition_heuristic(state):
     # print ret, state.board, state.to_move
     return -1*ret
 
+def monte_carlo(state, game, trials=100):
+    def update_scores(state):
+        winner = game.utility(state, player)
+        for pos in state.board:
+            initial_scores[pos[0]-1][pos[1]-1] += (winner)
+    
+    def get_max_score(state):
+        max_score = []
+        maximum = -infinity
+        for move in state.moves:
+            if initial_scores[move[0]-1][move[1]-1] > maximum:
+                maximum = initial_scores[move[0]-1][move[1]-1]
+                max_score = [move]
+            elif initial_scores[move[0]-1][move[1]-1] == maximum:
+                max_score.append(move)
+        return random.choice(max_score)
+
+    player = game.to_move(state)
+    og_state = state
+    initial_scores = [[0 for _ in range(game.v)] for __ in range(game.h)]
+
+    for trial in range(trials):
+        moves = state.moves
+        while moves:
+            move = random.choice(moves)
+            state = game.result(state, move)
+            moves = state.moves
+            if not moves:
+                break
+        update_scores(state)
+    return get_max_score(og_state)
 # ______________________________________________________________________________
 # Minimax Search
 
@@ -144,8 +175,6 @@ def alphabeta_search(state, game, d=4, cutoff_test=None, eval_fn=None):
 
 # ______________________________________________________________________________
 # Players for Games
-
-
 def query_player(game, state):
     "Make a move by querying standard input."
     move_string = input('Your move? ')
@@ -170,6 +199,10 @@ def minimax_player(game, state):
 def alphabeta_heuristic_player(game, state):
     return alphabeta_search(state, game, eval_fn=intuition_heuristic)
 
+def monte_carlo_player(game, state):
+    return monte_carlo(state, game)
+
+# ______________________________________________________________________________
 def play_game(game, *players):
     """Play an n-person, move-alternating game."""
 
@@ -179,7 +212,7 @@ def play_game(game, *players):
             move = player(game, state)
             state = game.result(state, move)
             if game.terminal_test(state):
-                game.display(state)
+                # game.display(state)
                 print game.utility(state, game.to_move(game.initial))
                 return game.utility(state, game.to_move(game.initial))
 
@@ -296,12 +329,12 @@ class TicTacToe(Game):
 
 times_random = []
 
-for i in xrange(1, 2):
+for i in xrange(1, 11):
     t = 0
     for j in xrange(1, i+1):
-        game = TicTacToe(6, 6, 6)
+        game = TicTacToe()
         t1 = time()
-        play_game(game, alphabeta_heuristic_player, random_player)
+        play_game(game, random_player, monte_carlo_player)
         t2 = time()
         t += t2-t1
     times_random.append(t)
