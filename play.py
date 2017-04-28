@@ -1,7 +1,7 @@
-from utils import print_table
+from helper.utils import print_table
 from time import time
-from tictactoe import TicTacToe
-from players import *
+from game.tictactoe import TicTacToe
+from game.players import *
 
 def play_game(game, *players):
     """Play an n-person, move-alternating game."""
@@ -19,13 +19,13 @@ def play_game(game, *players):
 
 times_random = []
 res = []
-for i in xrange(1, 11):
+for i in xrange(1, 2):
     t = 0
     temp = []
     for j in xrange(1, i+1):
         game = TicTacToe(5, 5, 5)
         t1 = time()
-        winner = play_game(game, alphabeta_heuristic_player, monte_carlo_player)
+        winner = play_game(game, alphabeta_heuristic_outisde_player, monte_carlo_player)
         t2 = time()
         t += t2-t1
         temp.append(winner)

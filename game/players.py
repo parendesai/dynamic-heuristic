@@ -1,8 +1,8 @@
 from random import choice
-from monte_carlo import monte_carlo
-from minimax import minimax_decision
-from heuristics import intuition_heuristic, outside_heuristic
-from alphabeta import alphabeta_full_search, alphabeta_search
+from algorithms.monte_carlo import monte_carlo
+from algorithms.minimax import minimax_decision
+from algorithms.heuristics import intuition_heuristic, outside_heuristic
+from algorithms.alphabeta import alphabeta_full_search, alphabeta_search
 
 def query_player(game, state):
     "Make a move by querying standard input."

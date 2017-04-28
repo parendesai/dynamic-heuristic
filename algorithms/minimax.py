@@ -1,4 +1,4 @@
-from utils import argmax
+from helper.utils import argmax
 
 def minimax_decision(state, game):
     """Given a state in a game, calculate the best move by searching
