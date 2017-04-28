@@ -1,9 +1,7 @@
-"""Games, or Adversarial Search (Chapter 5)"""
-
 from collections import namedtuple
 import random
 
-from utils import argmax
+from utils import argmax, print_table
 from canvas import Canvas
 
 from time import time
@@ -14,13 +12,16 @@ GameState = namedtuple('GameState', 'to_move, utility, board, moves')
 
 def intuition_heuristic(state):
     ret = 0
+    player = game.to_move(state)
     for cell in state.board:
-        # ret += (1 if state.board[cell] == state.to_move else -1) * (2 - (cell[1]+cell[0])%2)
-        # ret += (1 if state.board[cell] == state.to_move else -1) * (1 if cell[0]==cell[1]==2 else 0)
-        # ret += (1 if state.board[cell] == state.to_move else -1) * (min(min(cell[0], cell[1]), min(7-cell[0], 7-cell[1])))
-        ret += (1 if state.board[cell] == state.to_move else -1) #* (min(min(cell[0], cell[1]), min(7-cell[0], 7-cell[1])))
-    # print ret, state.board, state.to_move
-    return -1*ret
+        ret += (1 if state.board[cell] == player else -1)
+    return ret
+
+def outside_heuristic(state):
+    ret = 0
+    player = game.to_move(state)
+    for cell in state.board:
+        ret += (1 if state.board[cell] == state.to_move else -1) * (min(min(cell[0], cell[1]), min(game.h-cell[0], game.v-cell[1])))
 
 def monte_carlo(state, game, trials=10):
     def update_scores(state):
@@ -48,17 +49,11 @@ def monte_carlo(state, game, trials=10):
         moves = state.moves
         while moves:
             move = random.choice(moves)
-            # print move, state
-            # game.display(state)
             state = game.result(state, move)
-            
             if game.terminal_test(state):
-                # print "here"
                 break
             moves = state.moves
-        # print trial
         update_scores(state)
-        # print initial_scores
     return get_max_score(og_state)
 # ______________________________________________________________________________
 # Minimax Search
@@ -205,11 +200,10 @@ def minimax_player(game, state):
 
 def alphabeta_heuristic_player(game, state):
     return alphabeta_search(state, game, eval_fn=intuition_heuristic)
+    # return alphabeta_search(state, game, eval_fn=outside_heuristic)
 
 def monte_carlo_player(game, state):
-    move =  monte_carlo(state, game, trials=100)
-    # print move
-    return move
+    return  monte_carlo(state, game, trials=100)
 
 # ______________________________________________________________________________
 def play_game(game, *players):
@@ -221,7 +215,6 @@ def play_game(game, *players):
             move = player(game, state)
             state = game.result(state, move)
             if game.terminal_test(state):
-                # game.display(state)
                 print game.utility(state, game.to_move(game.initial))
                 return game.utility(state, game.to_move(game.initial))
 
@@ -337,15 +330,27 @@ class TicTacToe(Game):
         return n >= self.k
 
 times_random = []
-
-for i in xrange(1, 11):
+res = []
+for i in xrange(1, 101):
     t = 0
+    temp = []
     for j in xrange(1, i+1):
-        game = TicTacToe()
+        game = TicTacToe(5, 5, 5)
         t1 = time()
-        play_game(game, random_player, monte_carlo_player)
+        winner = play_game(game, alphabeta_heuristic_player, monte_carlo_player)
         t2 = time()
         t += t2-t1
+        temp.append(winner)
     times_random.append(t)
+    res.append(temp)
         
 print "times_random =", times_random
+print "Winner = "
+print "\n".join(map(lambda val: " ".join(map(str, val)), res))
+accuracy = []
+for row in res:
+    accuracy.append([row.count(1), row.count(-1), row.count(0), len(row), 100.0*row.count(1)/float(len(row)), 100.0*row.count(-1)/float(len(row)), 100.0*row.count(0)/float(len(row))])
+
+print "accuracy = "
+print_table(map(lambda val: map(str, val), accuracy), 
+            header=["Won", "Lost", "Draw", "Total", "% Win", "% Loss", "% Draw"])
