@@ -1,3 +1,5 @@
 *.pyc
 *.txt
 calculate.py
+Outputs/*
+.DS_Store
