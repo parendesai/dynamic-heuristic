@@ -23,9 +23,9 @@ for i in xrange(1, 2):
     t = 0
     temp = []
     for j in xrange(1, i+1):
-        game = TicTacToe(5, 5, 5)
+        game = TicTacToe(4, 4, 4)
         t1 = time()
-        winner = play_game(game, alphabeta_heuristic_outisde_player, monte_carlo_player)
+        winner = play_game(game, monte_carlo_player, alphabeta_player)
         t2 = time()
         t += t2-t1
         temp.append(winner)

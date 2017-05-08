@@ -47,6 +47,14 @@ class TicTacToe(Game):
                 print board.get((x, y), '.'), 
             print  
 
+    def get_board_verbose(self, state):
+        board = state.board
+        ret = ""
+        for x in range(1, self.h + 1):
+            for y in range(1, self.v + 1):
+                ret += board.get((x, y), '.') 
+        return ret
+
     def compute_utility(self, board, move, player):
         "If 'X' wins with this move, return 1; if 'O' wins return -1; else return 0."
         if (self.k_in_row(board, move, player, (0, 1)) or

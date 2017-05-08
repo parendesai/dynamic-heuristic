@@ -1,5 +1,7 @@
 from helper.utils import argmax
 
+infinity = float('inf')
+
 def minimax_decision(state, game):
     """Given a state in a game, calculate the best move by searching
     forward all the way to the terminal states. [Figure 5.3]"""
